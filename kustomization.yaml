@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - k8s-db.yaml
+  - k8s-dks-api.yaml
+
+configMapGenerator:
+  - name: dks-db-init-config
+    files:
+      - db-resources/0_0_db.sh

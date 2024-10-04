@@ -1,0 +1,60 @@
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dks-ui-config
+  namespace: default
+data:
+  APP_NAME: dks-ui
+  APP_PORT: "3000"
+  DKS_UI_BASE_URL: http://dks-ui:3000
+  DKS_API_BASE_URL: https://dks-api:8080
+  ENABLE_IMAGE_URL: "false"
+---
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dks-ui
+  namespace: default
+  labels:
+    app: dks-ui
+spec:
+  selector:
+    matchLabels:
+      app: dks-ui
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: dks-ui
+      labels:
+        app: dks-ui
+    spec:
+
+      containers:
+        - name: dks-ui
+          image: jburns24/dks-ui:latest
+          imagePullPolicy: Always
+
+          envFrom:
+            - configMapRef:
+                name: dks-ui-config
+          ports:
+            - containerPort: 3000
+      restartPolicy: Always
+---
+# https://kubernetes.io/docs/concepts/services-networking/service/
+apiVersion: v1
+kind: Service
+metadata:
+  name: dks-ui
+  namespace: default
+spec:
+  selector:
+    app: dks-ui
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+
